@@ -1,0 +1,40 @@
+name: Deploy via FTP to Hostinger (web/)
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  ftp-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Node.js (optional)
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies (if any)
+        run: |
+          if [ -f package.json ]; then npm install; fi
+
+      - name: Build project (if needed)
+        run: |
+          if [ -f package.json ]; then npm run build || echo "no build step"; fi
+
+      - name: Upload site via FTP (only web/)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USER }}
+          password: ${{ secrets.SFTP_PASS }}
+          port: ${{ secrets.SFTP_PORT || '21' }}
+          protocol: ftp
+          local-dir: web
+          server-dir: ${{ secrets.SFTP_REMOTE_PATH }}
+          # optional:
+          # delete: true    # remove remote files not present locally (use carefully)
+          # passive: false
