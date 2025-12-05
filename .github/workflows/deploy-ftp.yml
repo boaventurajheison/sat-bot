@@ -1,4 +1,4 @@
-name: Deploy via FTP to Hostinger (web/)
+name: Deploy via FTP to Hostinger (web - Vite -> dist)
 
 on:
   push:
@@ -8,24 +8,27 @@ on:
 jobs:
   ftp-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install Node.js (optional)
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install dependencies (if any)
+      - name: Install dependencies (web)
+        working-directory: web
         run: |
-          if [ -f package.json ]; then npm install; fi
+          npm ci
 
-      - name: Build project (if needed)
+      - name: Build project (web)
+        working-directory: web
         run: |
-          if [ -f package.json ]; then npm run build || echo "no build step"; fi
+          npm run build
 
-      - name: Upload site via FTP (only web/)
+      - name: Upload site via FTP (upload web/dist)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.SFTP_HOST }}
@@ -33,8 +36,5 @@ jobs:
           password: ${{ secrets.SFTP_PASS }}
           port: ${{ secrets.SFTP_PORT || '21' }}
           protocol: ftp
-          local-dir: web
+          local-dir: web/dist/
           server-dir: ${{ secrets.SFTP_REMOTE_PATH }}
-          # optional:
-          # delete: true    # remove remote files not present locally (use carefully)
-          # passive: false
