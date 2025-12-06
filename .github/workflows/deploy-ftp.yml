@@ -34,7 +34,8 @@ jobs:
           server: ${{ secrets.SFTP_HOST }}
           username: ${{ secrets.SFTP_USER }}
           password: ${{ secrets.SFTP_PASS }}
-          port: ${{ secrets.SFTP_PORT || '21' }}
+          port: ${{ secrets.SFTP_PORT }}
           protocol: ftp
           local-dir: web/dist/
           server-dir: ${{ secrets.SFTP_REMOTE_PATH }}
+          delete: true

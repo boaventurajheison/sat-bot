@@ -8,7 +8,15 @@ import cors from "cors";
 dotenv.config();
 
 const app = express();
-app.use(cors()); // permite chamadas do front (em dev). Em produção restrinja a origem.
+
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+
+if (process.env.NODE_ENV === "production") {
+  app.use(cors({ origin: FRONTEND_ORIGIN }));
+} else {
+  app.use(cors()); // liberado só no modo dev
+}
+
 
 const PORT = Number(process.env.PORT || 3000);
 
@@ -242,7 +250,8 @@ app.get("/futures/report", async (req: Request, res: Response) => {
 (async () => {
   await syncServerTime();
   app.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+    console.log(`🚀 Servidor rodando em port ${PORT}`);
     console.log(`🔗 Binance Futures Base URL: ${BASE}`);
+
   });
 })();
