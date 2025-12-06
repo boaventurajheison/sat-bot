@@ -1,68 +1,110 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* web/src/index.css (ou cole no arquivo de estilos global que já usa) */
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+:root{
+  --bg-1: #0f1724; /* deep */
+  --bg-2: #111827; /* darker */
+  --card: rgba(255,255,255,0.04);
+  --accent: #ff7a59;
+  --glass: rgba(255,255,255,0.04);
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
+/* background full */
+html,body,#root{
+  height: 100%;
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+}
+body{
+  font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+  color: #e6eef8;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  background-attachment: fixed;
+}
+
+/* subtle texture overlay (optional) */
+body::after{
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.25;
+}
+
+/* layout container */
+.app-shell{
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 48px 20px;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* header */
+.app-header{
+  width:100%;
+  max-width:1200px;
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+.title{
+  font-size: clamp(26px, 4.5vw, 48px);
+  line-height:1;
+  font-weight:700;
+  letter-spacing:-0.02em;
+  color: #fff;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+/* cards */
+.grid{
+  width:100%;
+  max-width:1200px;
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap:18px;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(2,6,23,0.6);
+  backdrop-filter: blur(6px);
+}
+
+/* little accent */
+.kpi{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.kpi .value{
+  font-weight:700;
+  font-size:1.4rem;
+  color: var(--accent);
+}
+
+/* table style */
+.table{
+  width:100%;
+  border-collapse: collapse;
+  color: #dbe7ff;
+}
+.table th, .table td{
+  padding:12px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  text-align:left;
+  font-size:0.95rem;
+}
+
+/* responsive helper */
+@media (max-width:640px){
+  .app-shell{ padding: 20px 12px; }
+  .title{ font-size: 28px; }
 }
