@@ -9,12 +9,25 @@ dotenv.config();
 
 const app = express();
 
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGINS || "https://strivora.com.br")
+  .split(",")
+  .map(s => s.trim())
+  .filter(Boolean);
 
+// usar array no cors
 if (process.env.NODE_ENV === "production") {
-  app.use(cors({ origin: FRONTEND_ORIGIN }));
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        // permitir requisições sem origin (ex: curl, mobile apps)
+        if (!origin) return callback(null, true);
+        if (FRONTEND_ORIGINS.includes(origin)) return callback(null, true);
+        return callback(new Error("Origin not allowed by CORS"));
+      },
+    })
+  );
 } else {
-  app.use(cors()); // liberado só no modo dev
+  app.use(cors());
 }
 
 
