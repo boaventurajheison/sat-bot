@@ -1,6 +1,8 @@
 // web/src/App.tsx
 import { useEffect, useState } from "react";
 
+
+
 type Position = {
   symbol: string;
   positionAmt: string;
@@ -97,7 +99,7 @@ export default function App() {
   }
 
   return (
-    <div style={{ padding: 20, fontFamily: "Inter, system-ui, sans-serif", maxWidth: 1100, margin: "0 auto" }}>
+    <div style={{ padding: 20, fontFamily: "center, Inter, system-ui, sans-serif", maxWidth: 1100, margin: "0 auto" }}>
       <h1>SAT Monitor — Binance Futures</h1>
 
       <section style={{ marginBottom: 18 }}>
@@ -157,7 +159,7 @@ export default function App() {
       </section>
 
       <section style={{ marginBottom: 28 }}>
-        <h2>Relatório de Ganhos / Perdas (Realized)</h2>
+        <h2>Relatório de Ganhos / Perdas</h2>
 
         <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
           <label>Período:</label>
