@@ -167,6 +167,7 @@ export default function App() {
             <option value="1d">Últimas 24 horas</option>
             <option value="7d">Últimos 7 dias</option>
             <option value="30d">Últimos 30 dias</option>
+            <option value="1y">Último ano</option>
           </select>
 
           <label style={{ marginLeft: 12 }}>Símbolo (opcional):</label>
