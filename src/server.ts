@@ -211,7 +211,7 @@ app.get("/futures/report", async (req: Request, res: Response) => {
       incomeType: "REALIZED_PNL",
       startTime,
       endTime,
-      limit: 10000,
+      limit: 1000,
     };
     if (symbol) qsParams.symbol = symbol;
 
