@@ -146,7 +146,7 @@ export default function App() {
                       <td style={{ padding: 8, textAlign: "right" }}>{p.positionAmt}</td>
                       <td style={{ padding: 8, textAlign: "right" }}>{p.entryPrice}</td>
                       <td style={{ padding: 8, textAlign: "right" }}>{p.markPrice}</td>
-                      <td style={{ padding: 8, textAlign: "right" }}>{p.unrealizedProfit}</td>
+                      
                       <td style={{ padding: 8, textAlign: "right" }}>{p.leverage}</td>
                       <td style={{ padding: 8, textAlign: "right" }}>{p.liquidationPrice}</td>
                     </tr>
