@@ -134,7 +134,7 @@ export default function App() {
                     <th style={{ padding: 8 }}>Qtd</th>
                     <th style={{ padding: 8 }}>Entry</th>
                     <th style={{ padding: 8 }}>Mark</th>
-                    <th style={{ padding: 8 }}>UPnL</th>
+                    
                     <th style={{ padding: 8 }}>Leverage</th>
                     <th style={{ padding: 8 }}>Liquidation</th>
                   </tr>
