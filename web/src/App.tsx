@@ -41,7 +41,9 @@ const formatCurrency = (s: string | number) => {
 };
 
 export default function App() {
-  const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+  // web/src/App.tsx (ou onde estiver)
+  const API_BASE: string = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 
   const [account, setAccount] = useState<AccountResp | null>(null);
   const [loadingAccount, setLoadingAccount] = useState(false);
