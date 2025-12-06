@@ -196,6 +196,9 @@ app.get("/futures/report", async (req: Request, res: Response) => {
         "1d": 24 * 60 * 60 * 1000,
         "7d": 7 * 24 * 60 * 60 * 1000,
         "30d": 30 * 24 * 60 * 60 * 1000,
+        "90d": 90 * 24 * 60 * 60 * 1000,
+        "180d": 180 * 24 * 60 * 60 * 1000,
+        "365d": 365 * 24 * 60 * 60 * 1000,
       };
       const ms = (map[p] !== undefined ? map[p] : (parseInt(p) || map["7d"]));
 
