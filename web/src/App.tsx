@@ -79,24 +79,34 @@ export default function App() {
     return () => clearInterval(id);
   }, []);
 
-  // fetch report
-  async function fetchReport() {
-    setLoadingReport(true);
-    setErrorReport(null);
-    setReport(null);
-    try {
-      const q = new URLSearchParams();
-      q.set("period", period);
-      if (symbol.trim()) q.set("symbol", symbol.trim().toUpperCase());
-      const res = await fetch(`${API_BASE}/futures/report?${q.toString()}`);
-      const json = await res.json();
-      setReport(json);
-    } catch (e: any) {
-      setErrorReport(e.message || String(e));
-    } finally {
-      setLoadingReport(false);
-    }
+  // fetch report (substitua a função existente)
+async function fetchReport() {
+  setLoadingReport(true);
+  setErrorReport(null);
+  setReport(null);
+
+  try {
+    const q = new URLSearchParams();
+    q.set("period", period);
+    if (symbol.trim()) q.set("symbol", symbol.trim().toUpperCase());
+
+    const res = await fetch(`${API_BASE}/futures/report?${q.toString()}`);
+    const json = await res.json();
+
+    // Inverter entries para mostrar as mais recentes primeiro
+    const sorted = {
+      ...json,
+      entries: json.entries ? [...json.entries].reverse() : []
+    };
+
+    setReport(sorted);
+  } catch (e: any) {
+    setErrorReport(e.message || String(e));
+  } finally {
+    setLoadingReport(false);
   }
+}
+
 
   return (
     <div style={{ padding: 20, fontFamily: "Inter, system-ui, sans-serif", maxWidth: 1100, margin: "0 auto" }}>
