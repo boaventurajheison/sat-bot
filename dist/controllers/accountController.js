@@ -5,7 +5,7 @@ exports.listAccounts = listAccounts;
 const prismaClient_1 = require("../prismaClient");
 const crypto_1 = require("../utils/crypto");
 async function createAccount(req, res) {
-    try {.
+    try {
         const userId = req.user.userId;
         const { nickname, apiKey, apiSecret } = req.body;
         if (!apiKey || !apiSecret)
