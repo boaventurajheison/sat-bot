@@ -1,14 +1,12 @@
-// web/src/App.tsx
+// web/src/App.tsx (substitua o conteúdo atual por este)
 import { useEffect, useState } from "react";
-
-
 
 type Position = {
   symbol: string;
-  positionAmt: string;
+  positionAmt: string; // pode ser negativo para short
   entryPrice: string;
   markPrice?: string;
-  unrealizedProfit: string;
+  unrealizedProfit?: string;
   leverage: string;
   liquidationPrice?: string;
 };
@@ -36,27 +34,49 @@ type ReportRespOk = {
 
 type ReportResp = ReportRespOk | { ok: false; error: any };
 
+type Order = {
+  orderId: string | number;
+  symbol: string;
+  side: "BUY" | "SELL";
+  type: string; // e.g. TAKE_PROFIT_MARKET, STOP_MARKET, TAKE_PROFIT, LIMIT ...
+  stopPrice?: string; // price used for stop or take (se existir)
+  price?: string; // limite
+  quantity?: string;
+  status?: string;
+};
+
 const formatCurrency = (s: string | number) => {
   const n = Number(s);
   if (Number.isNaN(n)) return String(s);
   return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 8 });
 };
 
-export default function App() {
-  // web/src/App.tsx (ou onde estiver)
-  const API_BASE: string = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const safeNum = (v: string | number | undefined) => {
+  if (v === undefined || v === null) return 0;
+  const n = Number(v);
+  return Number.isNaN(n) ? 0 : n;
+};
 
+export default function App() {
+  const API_BASE: string = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   const [account, setAccount] = useState<AccountResp | null>(null);
   const [loadingAccount, setLoadingAccount] = useState(false);
   const [errorAccount, setErrorAccount] = useState<string | null>(null);
 
-  // Report state
+  // orders
+  const [openOrders, setOpenOrders] = useState<Order[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+
+  // UI / report
   const [period, setPeriod] = useState<string>("7d");
   const [symbol, setSymbol] = useState<string>("");
   const [report, setReport] = useState<ReportResp | null>(null);
   const [loadingReport, setLoadingReport] = useState(false);
   const [errorReport, setErrorReport] = useState<string | null>(null);
+
+  // selected (expanded) position
+  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
 
   async function loadAccount() {
     setLoadingAccount(true);
@@ -73,40 +93,85 @@ export default function App() {
     }
   }
 
+  async function loadOpenOrders() {
+    // Endpoint optional: /futures/open-orders
+    // Se sua API retornar ordens abertas, elas deverão conter symbol, type (TAKE/STOP), stopPrice/price, etc.
+    setLoadingOrders(true);
+    try {
+      const res = await fetch(`${API_BASE}/futures/open-orders`);
+      if (!res.ok) {
+        // não tratar como erro fatal — apenas limpa ordens se endpoint não existir
+        setOpenOrders([]);
+        setLoadingOrders(false);
+        return;
+      }
+      const json = await res.json();
+      setOpenOrders(Array.isArray(json) ? json : []);
+    } catch (e) {
+      // ignore — endpoint pode não existir
+      setOpenOrders([]);
+    } finally {
+      setLoadingOrders(false);
+    }
+  }
+
   useEffect(() => {
     loadAccount();
-    const id = setInterval(loadAccount, 5000);
+    loadOpenOrders();
+    const id = setInterval(() => {
+      loadAccount();
+      loadOpenOrders();
+    }, 5000);
     return () => clearInterval(id);
   }, []);
 
   // fetch report (substitua a função existente)
-async function fetchReport() {
-  setLoadingReport(true);
-  setErrorReport(null);
-  setReport(null);
+  async function fetchReport() {
+    setLoadingReport(true);
+    setErrorReport(null);
+    setReport(null);
 
-  try {
-    const q = new URLSearchParams();
-    q.set("period", period);
-    if (symbol.trim()) q.set("symbol", symbol.trim().toUpperCase());
+    try {
+      const q = new URLSearchParams();
+      q.set("period", period);
+      if (symbol.trim()) q.set("symbol", symbol.trim().toUpperCase());
 
-    const res = await fetch(`${API_BASE}/futures/report?${q.toString()}`);
-    const json = await res.json();
+      const res = await fetch(`${API_BASE}/futures/report?${q.toString()}`);
+      const json = await res.json();
 
-    // Inverter entries para mostrar as mais recentes primeiro
-    const sorted = {
-      ...json,
-      entries: json.entries ? [...json.entries].reverse() : []
-    };
+      // Inverter entries para mostrar as mais recentes primeiro
+      const sorted = {
+        ...json,
+        entries: json.entries ? [...json.entries].reverse() : []
+      };
 
-    setReport(sorted);
-  } catch (e: any) {
-    setErrorReport(e.message || String(e));
-  } finally {
-    setLoadingReport(false);
+      setReport(sorted);
+    } catch (e: any) {
+      setErrorReport(e.message || String(e));
+    } finally {
+      setLoadingReport(false);
+    }
   }
-}
 
+  // cálculo de PnL estimado no preço alvo
+  // posiçãoAmt: quantidade (positivo = long, negativo = short)
+  // entry: preço de entrada
+  // targetPrice: preço alvo (take/stop)
+  function pnlAtPrice(positionAmtStr: string, entryStr: string, targetPriceStr: string) {
+    const qty = safeNum(positionAmtStr);
+    const entry = safeNum(entryStr);
+    const target = safeNum(targetPriceStr);
+    // PnL em base * preço diferença
+    // Nota: para contratos inversos e ajustes por tamanho de contrato isso pode mudar,
+    // mas para a maioria dos pares USDT perp, fórmula simples funciona: (target - entry) * qty
+    const pnl = (target - entry) * qty;
+    return pnl;
+  }
+
+  // helper para achar ordens relacionadas a um símbolo
+  function ordersForSymbol(sym: string) {
+    return openOrders.filter(o => o.symbol === sym);
+  }
 
   return (
     <div style={{ padding: 20, fontFamily: "Inter, system-ui, sans-serif", maxWidth: 1100, margin: "0 auto" }}>
@@ -114,8 +179,7 @@ async function fetchReport() {
 
       <section style={{ marginBottom: 18 }}>
         <h2>Saldo</h2>
-        // Inverter entries para mostrar as mais recentes primeiro
-        {loadingAccount && <div></div>} 
+        {loadingAccount && <div>Carregando saldo...</div>}
         {errorAccount && <div style={{ color: "crimson" }}>Erro: {errorAccount}</div>}
         {account && account.ok && (
           <div style={{ display: "flex", gap: 20 }}>
@@ -145,23 +209,88 @@ async function fetchReport() {
                     <th style={{ padding: 8 }}>Qtd</th>
                     <th style={{ padding: 8 }}>Entry</th>
                     <th style={{ padding: 8 }}>Mark</th>
-                    
+                    <th style={{ padding: 8 }}>Unrealized PnL</th>
                     <th style={{ padding: 8 }}>Leverage</th>
                     <th style={{ padding: 8 }}>Liquidation</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {account.openPositions.filter(p => parseFloat(p.positionAmt) !== 0).map((p) => (
-                    <tr key={p.symbol}>
-                      <td style={{ padding: 8 }}>{p.symbol}</td>
-                      <td style={{ padding: 8, textAlign: "right" }}>{p.positionAmt}</td>
-                      <td style={{ padding: 8, textAlign: "right" }}>{p.entryPrice}</td>
-                      <td style={{ padding: 8, textAlign: "right" }}>{p.markPrice}</td>
-                      
-                      <td style={{ padding: 8, textAlign: "right" }}>{p.leverage}</td>
-                      <td style={{ padding: 8, textAlign: "right" }}>{p.liquidationPrice}</td>
-                    </tr>
-                  ))}
+                  {account.openPositions.filter(p => parseFloat(p.positionAmt) !== 0).map((p) => {
+                    const unreal = p.unrealizedProfit ? Number(p.unrealizedProfit) : pnlAtPrice(p.positionAmt, p.entryPrice, p.markPrice || p.entryPrice);
+                    const isSelected = selectedSymbol === p.symbol;
+                    return (
+                      <tbody key={p.symbol}>
+                        <tr
+                          onClick={() => setSelectedSymbol(isSelected ? null : p.symbol)}
+                          style={{ cursor: "pointer", background: isSelected ? "#0f1724" : undefined }}
+                        >
+                          <td style={{ padding: 8 }}>{p.symbol}</td>
+                          <td style={{ padding: 8, textAlign: "right" }}>{p.positionAmt}</td>
+                          <td style={{ padding: 8, textAlign: "right" }}>{formatCurrency(p.entryPrice)}</td>
+                          <td style={{ padding: 8, textAlign: "right" }}>{formatCurrency(p.markPrice ?? "—")}</td>
+                          <td style={{ padding: 8, textAlign: "right" }}>{formatCurrency(unreal)}</td>
+                          <td style={{ padding: 8, textAlign: "right" }}>{p.leverage}</td>
+                          <td style={{ padding: 8, textAlign: "right" }}>{p.liquidationPrice ?? "—"}</td>
+                        </tr>
+
+                        {isSelected && (
+                          <tr>
+                            <td colSpan={7} style={{ padding: 12, background: "#071224" }}>
+                              <div style={{ display: "flex", gap: 20 }}>
+                                <div style={{ minWidth: 280 }}>
+                                  <div style={{ fontSize: 13, opacity: 0.9 }}>Detalhes da Posição</div>
+                                  <div>Símbolo: <strong>{p.symbol}</strong></div>
+                                  <div>Quantidade: <strong>{p.positionAmt}</strong></div>
+                                  <div>Entry price: <strong>{formatCurrency(p.entryPrice)}</strong></div>
+                                  <div>Mark price: <strong>{formatCurrency(p.markPrice ?? "—")}</strong></div>
+                                  <div>Unrealized PnL atual: <strong>{formatCurrency(unreal)}</strong></div>
+                                </div>
+
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ fontSize: 13, opacity: 0.9, marginBottom: 6 }}>Ordens relacionadas (take / stop)</div>
+                                  {loadingOrders && <div>Carregando ordens...</div>}
+                                  {!loadingOrders && ordersForSymbol(p.symbol).length === 0 && (
+                                    <div style={{ opacity: 0.8 }}>Nenhuma ordem de take/stop encontrada para este símbolo.</div>
+                                  )}
+
+                                  {ordersForSymbol(p.symbol).map((o) => {
+                                    // try to get a price: prefer stopPrice then price
+                                    const target = o.stopPrice ?? o.price ?? "";
+                                    const pnlEstimated = pnlAtPrice(p.positionAmt, p.entryPrice, target);
+                                    return (
+                                      <div key={String(o.orderId)} style={{ padding: 8, borderRadius: 8, marginBottom: 8, background: "#071a2b" }}>
+                                        <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+                                          <div>
+                                            <div style={{ fontSize: 13, fontWeight: 700 }}>{o.type}</div>
+                                            <div style={{ fontSize: 12, opacity: 0.8 }}>{o.side} — qty: {o.quantity ?? "—"}</div>
+                                          </div>
+                                          <div style={{ textAlign: "right" }}>
+                                            <div style={{ fontSize: 12, opacity: 0.8 }}>Preço alvo</div>
+                                            <div style={{ fontWeight: 700 }}>{target ? formatCurrency(target) : "—"}</div>
+                                          </div>
+                                        </div>
+
+                                        <div style={{ marginTop: 6, display: "flex", gap: 12 }}>
+                                          <div>
+                                            <div style={{ fontSize: 12, opacity: 0.8 }}>PnL estimado neste preço</div>
+                                            <div style={{ fontWeight: 700 }}>{formatCurrency(pnlEstimated)}</div>
+                                          </div>
+                                          <div>
+                                            <div style={{ fontSize: 12, opacity: 0.8 }}>Status</div>
+                                            <div style={{ fontWeight: 700 }}>{o.status ?? "—"}</div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    );
+                  })}
                 </tbody>
               </table>
             )}
