@@ -179,7 +179,7 @@ export default function App() {
 
       <section style={{ marginBottom: 18 }}>
         <h2>Saldo</h2>
-        {loadingAccount && <div>Carregando saldo...</div>}
+        {loadingAccount && <div></div>}
         {errorAccount && <div style={{ color: "crimson" }}>Erro: {errorAccount}</div>}
         {account && account.ok && (
           <div style={{ display: "flex", gap: 20 }}>
