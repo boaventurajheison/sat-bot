@@ -205,13 +205,13 @@ export default function App() {
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ textAlign: "left", borderBottom: "1px solid #ddd" }}>
-                    <th style={{ padding: 8 }}>Símbolo</th>
-                    <th style={{ padding: 8 }}>Qtd</th>
-                    <th style={{ padding: 8 }}>Entry</th>
-                    <th style={{ padding: 8 }}>Mark</th>
-                    <th style={{ padding: 8 }}>Unrealized PnL</th>
-                    <th style={{ padding: 8 }}>Leverage</th>
-                    <th style={{ padding: 8 }}>Liquidation</th>
+                    <th style={{ padding: 8, textAlign: "right" }}>Símbolo</th> 
+                    <th style={{ padding: 8, textAlign: "right" }}>Qtd</th>
+                    <th style={{ padding: 8, textAlign: "right" }}>Entry</th>
+                    <th style={{ padding: 8, textAlign: "right" }}>Mark</th>
+                    <th style={{ padding: 8, textAlign: "right" }}>Unrealized PnL</th>
+                    <th style={{ padding: 8, textAlign: "right" }}>Leverage</th>
+                    <th style={{ padding: 8, textAlign: "right" }}>Liquidation</th>
                   </tr>
                 </thead>
                 <tbody>
