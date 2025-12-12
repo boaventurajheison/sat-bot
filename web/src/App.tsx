@@ -178,7 +178,7 @@ export default function App() {
       <h1>SAT Monitor — Binance Futures</h1>
 
       <section style={{ marginBottom: 18,textAlign:"center" }}>
-        <h2>Saldo</h2>
+        <h2>Saldo</h2><h2>Saldo</h2>
         {loadingAccount && <div></div>}
         {errorAccount && <div style={{ color: "crimson" }}>Erro: {errorAccount}</div>}
         {account && account.ok && (
@@ -186,14 +186,14 @@ export default function App() {
   <div style={{ display: "flex", gap: 20 }}>
     
     <div style={{ padding: 12, borderRadius: 8, background: "#111", color: "#fff", minWidth: 220 }}>
-      <div style={{ fontSize: 12, opacity: 0.8 }}>Total Wallet Balance</div>
+      <div style={{ fontSize: 12, opacity: 0.8 }}>Saldo Total da Carteira</div>
       <div style={{ fontSize: 22, fontWeight: 700 }}>
         {formatCurrency(account.totalWalletBalance)}
       </div>
     </div>
 
     <div style={{ padding: 12, borderRadius: 8, background: "#1b1b1b", color: "#fff", minWidth: 220 }}>
-      <div style={{ fontSize: 12, opacity: 0.8 }}>Total Unrealized Profit</div>
+      <div style={{ fontSize: 12, opacity: 0.8 }}>Lucro Total Não Realizado</div>
       <div style={{ fontSize: 22, fontWeight: 700 }}>
         {formatCurrency(account.totalUnrealizedProfit)}
       </div>
