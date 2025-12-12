@@ -235,7 +235,7 @@ export default function App() {
 
                         {isSelected && (
                           <tr>
-                            <td colSpan={7} style={{ padding: 12, background: "#071224" }}>
+                            <td colSpan={7} style={{ padding: 12, textAlign: "left", background: "#071224" }}>
                               <div style={{ display: "flex", gap: 20 }}>
                                 <div style={{ minWidth: 280 }}>
                                   <div style={{ fontSize: 13, opacity: 0.9 }}>Detalhes da Posição</div>
