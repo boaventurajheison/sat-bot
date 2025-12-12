@@ -177,7 +177,7 @@ export default function App() {
     <div style={{ padding: 20, fontFamily: "Inter, system-ui, sans-serif",textAlign:"center", maxWidth: 1100, margin: "0 auto" }}>
       <h1>SAT Monitor — Binance Futures</h1>
 
-      <section style={{ marginBottom: 18 }}>
+      <section style={{ marginBottom: 18,textAlign:"center" }}>
         <h2>Saldo</h2>
         {loadingAccount && <div></div>}
         {errorAccount && <div style={{ color: "crimson" }}>Erro: {errorAccount}</div>}
