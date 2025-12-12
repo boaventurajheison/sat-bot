@@ -182,7 +182,7 @@ export default function App() {
         {loadingAccount && <div></div>}
         {errorAccount && <div style={{ color: "crimson" }}>Erro: {errorAccount}</div>}
         {account && account.ok && (
-          <div style={{ display: "flex", textAlign:"center", gap: 20 }}>
+          <div style={{ display: "flex", alignItems:"center", textAlign:"center", gap: 20 }}>
             <div style={{ padding: 12, borderRadius: 8, background: "#111", color: "#fff", minWidth: 220 }}>
               <div style={{ fontSize: 12, opacity: 0.8 }}>Total Wallet Balance</div>
               <div style={{ fontSize: 22, fontWeight: 700 }}>{formatCurrency(account.totalWalletBalance)}</div>
