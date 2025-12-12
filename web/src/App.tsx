@@ -225,12 +225,12 @@ export default function App() {
                           style={{ cursor: "pointer", background: isSelected ? "#0f1724" : undefined }}
                         >
                           <td style={{ padding: 8 }}>{p.symbol}</td>
-                          <td style={{ padding: 8, textAlign: "right" }}>{p.positionAmt}</td>
-                          <td style={{ padding: 8, textAlign: "right" }}>{formatCurrency(p.entryPrice)}</td>
-                          <td style={{ padding: 8, textAlign: "right" }}>{formatCurrency(p.markPrice ?? "—")}</td>
-                          <td style={{ padding: 8, textAlign: "right" }}>{formatCurrency(unreal)}</td>
-                          <td style={{ padding: 8, textAlign: "right" }}>{p.leverage}</td>
-                          <td style={{ padding: 8, textAlign: "right" }}>{p.liquidationPrice ?? "—"}</td>
+                          <td style={{ padding: 8, textAlign: "left" }}>{p.positionAmt}</td>
+                          <td style={{ padding: 8, textAlign: "left" }}>{formatCurrency(p.entryPrice)}</td>
+                          <td style={{ padding: 8, textAlign: "left" }}>{formatCurrency(p.markPrice ?? "—")}</td>
+                          <td style={{ padding: 8, textAlign: "left" }}>{formatCurrency(unreal)}</td>
+                          <td style={{ padding: 8, textAlign: "left" }}>{p.leverage}</td>
+                          <td style={{ padding: 8, textAlign: "left" }}>{p.liquidationPrice ?? "—"}</td>
                         </tr>
 
                         {isSelected && (
