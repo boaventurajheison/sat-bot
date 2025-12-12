@@ -248,41 +248,13 @@ export default function App() {
 
                                 <div style={{ flex: 1 }}>
                                   <div style={{ fontSize: 13, opacity: 0.9, marginBottom: 6 }}>Ordens relacionadas (take / stop)</div>
-                                  {loadingOrders && <div>Carregando ordens...</div>}
+                                  {loadingOrders && <div></div>}
                                   {!loadingOrders && ordersForSymbol(p.symbol).length === 0 && (
                                     <div style={{ opacity: 0.8 }}>Nenhuma ordem de take/stop encontrada para este símbolo.</div>
                                   )}
 
-                                  {ordersForSymbol(p.symbol).map((o) => {
-                                    // try to get a price: prefer stopPrice then price
-                                    const target = o.stopPrice ?? o.price ?? "";
-                                    const pnlEstimated = pnlAtPrice(p.positionAmt, p.entryPrice, target);
-                                    return (
-                                      <div key={String(o.orderId)} style={{ padding: 8, borderRadius: 8, marginBottom: 8, background: "#071a2b" }}>
-                                        <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-                                          <div>
-                                            <div style={{ fontSize: 13, fontWeight: 700 }}>{o.type}</div>
-                                            <div style={{ fontSize: 12, opacity: 0.8 }}>{o.side} — qty: {o.quantity ?? "—"}</div>
-                                          </div>
-                                          <div style={{ textAlign: "right" }}>
-                                            <div style={{ fontSize: 12, opacity: 0.8 }}>Preço alvo</div>
-                                            <div style={{ fontWeight: 700 }}>{target ? formatCurrency(target) : "—"}</div>
-                                          </div>
-                                        </div>
-
-                                        <div style={{ marginTop: 6, display: "flex", gap: 12 }}>
-                                          <div>
-                                            <div style={{ fontSize: 12, opacity: 0.8 }}>PnL estimado neste preço</div>
-                                            <div style={{ fontWeight: 700 }}>{formatCurrency(pnlEstimated)}</div>
-                                          </div>
-                                          <div>
-                                            <div style={{ fontSize: 12, opacity: 0.8 }}>Status</div>
-                                            <div style={{ fontWeight: 700 }}>{o.status ?? "—"}</div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    );
-                                  })}
+                                  
+                                  
                                 </div>
                               </div>
                             </td>
