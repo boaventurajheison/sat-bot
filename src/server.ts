@@ -160,22 +160,6 @@ app.get("/futures/account", async (req: Request, res: Response) => {
 
 /**
  * GET /futures/report
- * Query params:
- *  - period: optional string ("1d", "7d", "30d") OR
- *  - start: optional unix ms timestamp
- *  - end: optional unix ms timestamp
- *  - symbol: optional symbol like ORDIUSDT
- *
- * Response:
- * {
- *   ok: true,
- *   period: { start: number, end: number },
- *   totalRealized: string,
- *   count: number,
- *   avgPerEntry: string,
- *   percentRelativeToInitialBalance: number | null,
- *   entries: [ { symbol, income, time, incomeType } ... ]
- * }
  */
 app.get("/futures/report", async (req: Request, res: Response) => {
   if (!API_KEY || !API_SECRET) {
@@ -183,14 +167,13 @@ app.get("/futures/report", async (req: Request, res: Response) => {
   }
 
   try {
-    // parse period or start/end
     const { period, symbol } = req.query as Record<string, string | undefined>;
     const now = Date.now() + timeOffset;
+
     let startTime = Number(req.query.start) || 0;
     let endTime = Number(req.query.end) || 0;
 
     if (!startTime || !endTime) {
-      // support simple period strings
       const p = (period || "7d").toLowerCase();
       const map: Record<string, number> = {
         "1d": 24 * 60 * 60 * 1000,
@@ -200,58 +183,103 @@ app.get("/futures/report", async (req: Request, res: Response) => {
         "180d": 180 * 24 * 60 * 60 * 1000,
         "365d": 365 * 24 * 60 * 60 * 1000,
       };
-      const ms = (map[p] !== undefined ? map[p] : (parseInt(p) || map["7d"]));
+      const ms = map[p] ?? map["7d"];
 
       endTime = now;
       startTime = now - ms;
     }
 
-    // prepare query for /fapi/v1/income
     const qsParams: Record<string, any> = {
       incomeType: "REALIZED_PNL",
       startTime,
       endTime,
       limit: 1000,
     };
-    if (symbol) qsParams.symbol = symbol;
+    if (symbol) qsParams.symbol = symbol.toUpperCase();
 
     const qs = signQuery(qsParams);
     const client = axiosAuth();
 
-    // fetch income entries (realized PnL)
     const incomeResp = await client.get(`/fapi/v1/income?${qs}`);
     const entries = Array.isArray(incomeResp.data) ? incomeResp.data : [];
 
-    // aggregate
+    // ---------------------------------------------------------
+    // AGRUPAMENTO POR POSIÇÃO FECHADA
+    // ---------------------------------------------------------
+    function groupPositions(entries: any[]) {
+      const groups: any[] = [];
+      let current: any = null;
+
+      const sorted = [...entries].sort((a, b) => a.time - b.time);
+
+      for (const e of sorted) {
+        if (!current) {
+          current = {
+            symbol: e.symbol,
+            startTime: e.time,
+            endTime: e.time,
+            entries: [e],
+            total: parseFloat(e.income || "0"),
+          };
+          continue;
+        }
+
+        const last = current.entries[current.entries.length - 1];
+        const sameSymbol = e.symbol === current.symbol;
+        const closeInTime = (e.time - last.time) < 8000;
+
+        if (sameSymbol && closeInTime) {
+          current.entries.push(e);
+          current.endTime = e.time;
+          current.total += parseFloat(e.income || "0");
+        } else {
+          groups.push(current);
+          current = {
+            symbol: e.symbol,
+            startTime: e.time,
+            endTime: e.time,
+            entries: [e],
+            total: parseFloat(e.income || "0"),
+          };
+        }
+      }
+
+      if (current) groups.push(current);
+      return groups;
+    }
+
+    const groupedPositions = groupPositions(entries);
+
+    // Total Realizado
     let totalRealized = 0;
-    entries.forEach((e: any) => {
-      const val = parseFloat((e.income ?? "0").toString());
+    entries.forEach(e => {
+      const val = parseFloat(e.income ?? "0");
       if (!isNaN(val)) totalRealized += val;
     });
 
-    // get current account to estimate initial balance
-    // NOTE: initialBalanceEstimate = currentWalletBalance - totalRealized (assuming realized occurred in period)
     const qsAccount = signQuery();
     const accountResp = await client.get(`/fapi/v2/account?${qsAccount}`);
     const account = accountResp.data;
+
     const currentWallet = parseFloat(account.totalWalletBalance || "0");
     const initialBalanceEstimate = currentWallet - totalRealized;
 
     const percentRelative =
-      initialBalanceEstimate !== 0 ? (totalRealized / initialBalanceEstimate) * 100 : null;
+      initialBalanceEstimate !== 0
+        ? Number(((totalRealized / initialBalanceEstimate) * 100).toFixed(6))
+        : null;
 
-    const count = entries.length;
-    const avgPerEntry = count > 0 ? totalRealized / count : 0;
+    const avgPerEntry = entries.length > 0 ? totalRealized / entries.length : 0;
 
     return res.json({
       ok: true,
       period: { start: Number(startTime), end: Number(endTime) },
       totalRealized: totalRealized.toString(),
-      count,
+      count: entries.length,
       avgPerEntry: avgPerEntry.toString(),
-      percentRelativeToInitialBalance:
-        percentRelative === null ? null : Number(percentRelative.toFixed(6)),
-      entries, // raw entries (time, symbol, income, incomeType)
+      percentRelativeToInitialBalance: percentRelative,
+      entries,
+      groupedPositions,
       fetchedAt: Date.now(),
     });
   } catch (err: any) {
@@ -261,6 +289,8 @@ app.get("/futures/report", async (req: Request, res: Response) => {
     return res.status(status).json({ ok: false, error: data });
   }
 });
+
+
 
 // Inicia servidor somente após tentar sincronizar o tempo com a Binance
 (async () => {
