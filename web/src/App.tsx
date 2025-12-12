@@ -217,11 +217,7 @@ export default function App() {
                   <tr style={{ textAlign: "left", borderBottom: "1px solid #ddd" }}>
                     <th style={{ padding: 8, textAlign: "left" }}>Símbolo</th> 
                     <th style={{ padding: 8, textAlign: "left" }}>Qtd</th>
-                    <th style={{ padding: 8, textAlign: "left" }}>Entry</th>
-                    <th style={{ padding: 8, textAlign: "left" }}>Mark</th>
                     <th style={{ padding: 8, textAlign: "left" }}>Unrealized PnL</th>
-                    <th style={{ padding: 8, textAlign: "left" }}>Leverage</th>
-                    <th style={{ padding: 8, textAlign: "left" }}>Liquidation</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -237,10 +233,7 @@ export default function App() {
                           <td style={{ padding: 8 }}>{p.symbol}</td>
                           <td style={{ padding: 8, textAlign: "left" }}>{p.positionAmt}</td>
                           <td style={{ padding: 8, textAlign: "left" }}>{formatCurrency(p.entryPrice)}</td>
-                          <td style={{ padding: 8, textAlign: "left" }}>{formatCurrency(p.markPrice ?? "—")}</td>
                           <td style={{ padding: 8, textAlign: "left" }}>{formatCurrency(unreal)}</td>
-                          <td style={{ padding: 8, textAlign: "left" }}>{p.leverage}</td>
-                          <td style={{ padding: 8, textAlign: "left" }}>{p.liquidationPrice ?? "—"}</td>
                         </tr>
 
                         {isSelected && (
