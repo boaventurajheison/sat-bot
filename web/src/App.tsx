@@ -174,7 +174,7 @@ export default function App() {
   }
 
   return (
-    <div style={{ padding: 20, fontFamily: "Inter, system-ui, sans-serif", maxWidth: 1100, margin: "0 auto" }}>
+    <div style={{ padding: 20, fontFamily: "Inter, system-ui, sans-serif",textAlign:"center", maxWidth: 1100, margin: "0 auto" }}>
       <h1>SAT Monitor — Binance Futures</h1>
 
       <section style={{ marginBottom: 18 }}>
