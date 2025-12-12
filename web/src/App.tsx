@@ -232,7 +232,6 @@ export default function App() {
                         >
                           <td style={{ padding: 8 }}>{p.symbol}</td>
                           <td style={{ padding: 8, textAlign: "left" }}>{p.positionAmt}</td>
-                          <td style={{ padding: 8, textAlign: "left" }}>{formatCurrency(p.entryPrice)}</td>
                           <td style={{ padding: 8, textAlign: "left" }}>{formatCurrency(unreal)}</td>
                         </tr>
 
