@@ -214,7 +214,7 @@ export default function App() {
             ) : (
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
-                  <tr style={{ textAlign: "left", borderBottom: "1px solid #ddd" }}>
+                  <tr style={{borderBottom: "1px solid #ddd" }}>
                     <th style={{ padding: 8, textAlign: "left" }}>Símbolo</th> 
                     <th style={{ padding: 8, textAlign: "left" }}>Qtd</th>
                     <th style={{ padding: 8, textAlign: "left" }}>Unrealized PnL</th>
@@ -239,13 +239,11 @@ export default function App() {
                         {isSelected && (
                           <tr>
                             <td colSpan={7} style={{ padding: 12, textAlign: "left", background: "#071224" }}>
-                              <div style={{ display: "flex", gap: 20 }}>
+                              <div style={{ display: "left", gap: 20 }}>
                                 <div style={{ minWidth: 280 }}>
                                   <div style={{ fontSize: 13, opacity: 0.9 }}>Detalhes da Posição</div>
                                   <div>Símbolo: <strong>{p.symbol}</strong></div>
                                   <div>Quantidade: <strong>{p.positionAmt}</strong></div>
-                                  <div>Entry price: <strong>{formatCurrency(p.entryPrice)}</strong></div>
-                                  <div>Mark price: <strong>{formatCurrency(p.markPrice ?? "—")}</strong></div>
                                   <div>Unrealized PnL atual: <strong>{formatCurrency(unreal)}</strong></div>
                                 </div>
 
